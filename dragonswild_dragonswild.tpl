@@ -3,7 +3,7 @@
 <!-- 
 --------
 -- BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> & Emmanuel Colin <ecolin@boardgamearena.com>
--- DragonsWild implementation : © <Your name here> <Your email address here>
+-- DragonsWild implementation : © Autumn Barker <autumn.c.barker@gmail.com>
 -- 
 -- This code has been produced on the BGA studio platform for use on http://boardgamearena.com.
 -- See http://en.boardgamearena.com/#!doc/Studio for more information.
@@ -26,7 +26,12 @@
 -->
 
 
-This is your game interface. You can edit this HTML in your ".tpl" file.
+<div id="myhand_wrap" class="whiteblock">
+    <h3>My Hand</h3>
+    <div id="myhand">
+    <div class="playertablecard"></div>
+    </div>
+</div>
 
 
 <script type="text/javascript">
