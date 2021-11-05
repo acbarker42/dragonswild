@@ -26,10 +26,14 @@
 -->
 
 
+<div id="playertable">
+    <div id="playarea" class="whiteblock">
+        </div>
+</div>
+
 <div id="myhand_wrap" class="whiteblock">
-    <h3>My Hand</h3>
+    <h3>{MY_HAND}</h3>
     <div id="myhand">
-    <div class="playertablecard"></div>
     </div>
 </div>
 

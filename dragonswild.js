@@ -18,13 +18,15 @@
 define([
     "dojo","dojo/_base/declare",
     "ebg/core/gamegui",
-    "ebg/counter"
+    "ebg/counter",
+    "ebg/stock"
 ],
 function (dojo, declare) {
     return declare("bgagame.dragonswild", ebg.core.gamegui, {
         constructor: function(){
             console.log('dragonswild constructor');
-              
+            this.cardwidth = 72;
+            this.cardheight = 96;
             // Here, you can init the global variables of your user interface
             // Example:
             // this.myGlobalValue = 0;
@@ -58,7 +60,22 @@ function (dojo, declare) {
             
             // TODO: Set up your game interface here, according to "gamedatas"
             
- 
+             // Player hand
+             this.playerHand = new ebg.stock(); // new stock object for hand
+             dojo.connect( this.playerHand, 'onChangeSelection', this, 'onPlayerHandSelectionChanged' );
+             this.playerHand.create( this, $('myhand'), this.cardwidth, this.cardheight );
+             this.playerHand.image_items_per_row = 16; // 16 images per row
+
+             // Create cards types:
+             for (var color = 1; color <= 8; color++) {
+                 for (var value = 1; value <= 8; value++) {
+                     // Build card type id
+                     var card_type_id = this.getCardUniqueId(color, value);
+                     this.playerHand.addItemType(card_type_id, card_type_id, g_gamethemeurl + 'img/cardsColor.jpg', card_type_id);
+                 }
+             }
+// 2 = hearts, 5 is 5, and 42 is the card id, which normally would come from db
+this.playerHand.addToStockWithId( this.getCardUniqueId( 2, 5 ), 42 );
             // Setup game notifications to handle (see "setupNotifications" method below)
             this.setupNotifications();
 
@@ -157,7 +174,10 @@ function (dojo, declare) {
             script.
         
         */
-
+        // Get card unique identifier based on its color and value
+        getCardUniqueId : function(color, value) {
+            return (color - 1) * 16 + (value - 2);
+        },
 
         ///////////////////////////////////////////////////
         //// Player's action
@@ -172,7 +192,24 @@ function (dojo, declare) {
             _ make a call to the game server
         
         */
-        
+                onPlayerHandSelectionChanged : function() {
+                    var items = this.playerHand.getSelectedItems();
+
+                    if (items.length > 0) {
+                        if (this.checkAction('playCard', true)) {
+                            // Can play a card
+
+                            var card_id = items[0].id;
+                            console.log("on playCard "+card_id);
+
+                            this.playerHand.unselectAll();
+                        } else if (this.checkAction('giveCards')) {
+                            // Can give cards => let the player select some cards
+                        } else {
+                            this.playerHand.unselectAll();
+                        }
+                    }
+                },
         /* Example:
         
         onMyMethodToCall1: function( evt )

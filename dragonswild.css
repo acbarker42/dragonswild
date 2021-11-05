@@ -56,6 +56,17 @@
     background-image: url('img/cardsColor.jpg'); /* temp hack to see it */
 }
 
+#playertable {
+    position: relative;
+
+}
+
+.playarea {
+    position: absolute;
+    text-align: center;
+    height: 300px;
+}
+
 /*
     Example of CSS sprites (a black token and a white token, 20x20px each, embedded in the same "tokens.png" 40x20px image):
 
