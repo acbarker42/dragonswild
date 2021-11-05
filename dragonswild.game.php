@@ -31,15 +31,13 @@ class DragonsWild extends Table
         //  the corresponding ID in gameoptions.inc.php.
         // Note: afterwards, you can get/set the global variables with getGameStateValue/setGameStateInitialValue/setGameStateValue
         parent::__construct();
-        
-        self::initGameStateLabels( array( 
-            //    "my_first_global_variable" => 10,
-            //    "my_second_global_variable" => 11,
-            //      ...
-            //    "my_first_game_variant" => 100,
-            //    "my_second_game_variant" => 101,
-            //      ...
-        ) );        
+        self::initGameStateLabels( array(
+                         "currentHandType" => 10,
+                         "trickColor" => 11,
+                          ) );
+
+        $this->cards = self::getNew( "module.common.deck" );
+        $this->cards->init( "card" );
 	}
 	
     protected function getGameName( )
@@ -88,7 +86,33 @@ class DragonsWild extends Table
         //self::initStat( 'player', 'player_teststat1', 0 );  // Init a player statistics (for all players)
 
         // TODO: setup the initial game situation here
-       
+       // Note: hand types: 0 = give 3 cards to player on the left
+       //                   1 = give 3 cards to player on the right
+       //                   2 = give 3 cards to player opposite
+       //                   3 = keep cards
+       self::setGameStateInitialValue( 'currentHandType', 0 );
+
+       // Set current trick color to zero (= no trick color)
+       self::setGameStateInitialValue( 'trickColor', 0 );
+       // Create cards
+       $cards = array ();
+       foreach ( $this->colors as $color_id => $color ) {
+           // 8 different colors
+           for ($value = 1; $value <= 8; $value ++) {
+               //  1-8
+               $cards [] = array ('type' => $color_id,'type_arg' => $value,'nbr' => 1 );
+           }
+       }
+
+       $this->cards->createCards( $cards, 'deck' );
+       // Shuffle deck
+       $this->cards->shuffle('deck');
+       // Deal 13 cards to each players
+       $players = self::loadPlayersBasicInfos();
+       foreach ( $players as $player_id => $player ) {
+           $cards = $this->cards->pickCards(4, 'deck', $player_id);
+       }
+
 
         // Activate first player (which is in general a good idea :) )
         $this->activeNextPlayer();
@@ -117,7 +141,11 @@ class DragonsWild extends Table
         $result['players'] = self::getCollectionFromDb( $sql );
   
         // TODO: Gather all information about current game situation (visible by player $current_player_id).
-  
+      // Cards in player hand
+      $result['hand'] = $this->cards->getCardsInLocation( 'hand', $current_player_id );
+
+      // Cards played on the table
+      $result['cardsontable'] = $this->cards->getCardsInLocation( 'cardsontable' );
         return $result;
     }
 
