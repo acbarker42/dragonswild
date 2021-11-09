@@ -198,7 +198,7 @@ function (dojo, declare) {
                 x : this.cardwidth * (value - 2),
                 y : this.cardheight * (color - 1),
                 player_id : player_id
-            }), 'playertablecard_' + player_id);
+            }),  'playertablecard_' + player_id);
 
             if (player_id != this.player_id) {
                 // Some opponent played a card
@@ -215,7 +215,7 @@ function (dojo, declare) {
             }
 
             // In any case: move it to its final destination
-            this.slideToObject('playarea').play();
+            this.slideToObject('cardontable_' + player_id, 'playertablecard_' + player_id).play();
         },
         ///////////////////////////////////////////////////
         //// Player's action

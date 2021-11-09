@@ -26,9 +26,18 @@
 -->
 
 
-<div id="playertable">
-    <div id="playarea" class="whiteblock">
+<div id="playertables">
+
+    <!-- BEGIN player -->
+    <div class="playertable whiteblock playertable_{DIR}">
+        <div class="playertablename" style="color:#{PLAYER_COLOR}">
+            {PLAYER_NAME}
         </div>
+        <div class="playertablecard" id="playertablecard_{PLAYER_ID}">
+        </div>
+    </div>
+    <!-- END player -->
+
 </div>
 
 <div id="myhand_wrap" class="whiteblock">
@@ -36,7 +45,6 @@
     <div id="myhand">
     </div>
 </div>
-
 
 <script type="text/javascript">
 

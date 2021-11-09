@@ -107,7 +107,7 @@ class DragonsWild extends Table
        $this->cards->createCards( $cards, 'deck' );
        // Shuffle deck
        $this->cards->shuffle('deck');
-       // Deal 13 cards to each players
+       // Deal 4 cards to each player
        $players = self::loadPlayersBasicInfos();
        foreach ( $players as $player_id => $player ) {
            $cards = $this->cards->pickCards(4, 'deck', $player_id);
