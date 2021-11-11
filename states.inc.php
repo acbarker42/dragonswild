@@ -71,6 +71,38 @@ $machinestates = array(
     		"possibleactions" => array( "playCard", "pass" ),
     		"transitions" => array( "playCard" => 2, "pass" => 2 )
     ),
+    /// New hand
+    20 => array(
+        "name" => "newHand",
+        "description" => "",
+        "type" => "game",
+        "action" => "stNewHand",
+        "updateGameProgression" => true,
+        "transitions" => array( "" => 30 )
+    ),
+     31 => array(
+          "name" => "playerTurn",
+          "description" => clienttranslate('${actplayer} must play a card'),
+          "descriptionmyturn" => clienttranslate('${you} must play a card'),
+          "type" => "activeplayer",
+          "possibleactions" => array( "playCard" ),
+          "transitions" => array( "playCard" => 32 )
+      ),
+    32 => array(
+        "name" => "nextPlayer",
+        "description" => "",
+        "type" => "game",
+        "action" => "stNextPlayer",
+        "transitions" => array( "nextPlayer" => 31, "endHand" => 40 )
+    ),
+    // End of the hand (scoring, etc...)
+    40 => array(
+        "name" => "endHand",
+        "description" => "",
+        "type" => "game",
+        "action" => "stEndHand",
+        "transitions" => array( "nextHand" => 20, "endGame" => 99 )
+    ),
     
 /*
     Examples:
