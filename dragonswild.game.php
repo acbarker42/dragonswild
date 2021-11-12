@@ -188,7 +188,17 @@ class DragonsWild extends Table
     function playCard($card_id) {
         self::checkAction("playCard");
         $player_id = self::getActivePlayerId();
-        throw new BgaUserException(self::_("Not implemented: ") . "$player_id plays $card_id");
+        $this->cards->moveCard($card_id, 'cardsontable', $player_id);
+        // XXX check rules here
+        $currentCard = $this->cards->getCard($card_id);
+        // And notify
+        self::notifyAllPlayers('playCard', clienttranslate('${player_name} plays ${value_displayed} ${color_displayed}'), array (
+                'i18n' => array ('color_displayed','value_displayed' ),'card_id' => $card_id,'player_id' => $player_id,
+                'player_name' => self::getActivePlayerName(),'value' => $currentCard ['type_arg'],
+                'value_displayed' => $this->values_label [$currentCard ['type_arg']],'color' => $currentCard ['type'],
+                'color_displayed' => $this->colors [$currentCard ['type']] ['name'] ));
+        // Next player
+        $this->gamestate->nextState('playCard');
     }
     /*
     
@@ -266,17 +276,46 @@ class DragonsWild extends Table
             }
             $this->gamestate->nextState("");
         }
-        function stNextPlayer() {
-            // Active next player OR end the trick and go to the next trick OR end the hand
-            if ($this->cards->countCardInLocation('cardsontable') == 4) {
-                // This is the end of the trick
-                // Move all cards to "cardswon" of the given player
-                $best_value_player_id = self::activeNextPlayer(); // TODO figure out winner of trick
-                $this->cards->moveAllCardsInLocation('cardsontable', 'cardswon', null, $best_value_player_id);
+function stNextPlayer() {
+        // Active next player OR end the trick and go to the next trick OR end the hand
+        if ($this->cards->countCardInLocation('cardsontable') == 4) {
+            // This is the end of the trick
+            $cards_on_table = $this->cards->getCardsInLocation('cardsontable');
+            $best_value = 0;
+            $best_value_player_id = null;
+            $currentTrickColor = self::getGameStateValue('trickColor');
+            foreach ( $cards_on_table as $card ) {
+                // Note: type = card color
+                if ($card ['type'] == $currentTrickColor) {
+                    if ($best_value_player_id === null || $card ['type_arg'] > $best_value) {
+                        $best_value_player_id = $card ['location_arg']; // Note: location_arg = player who played this card on table
+                        $best_value = $card ['type_arg']; // Note: type_arg = value of the card
+                    }
+                }
+            }
 
+            // Active this player => he's the one who starts the next trick
+            $this->gamestate->changeActivePlayer( $best_value_player_id );
+
+            // Move all cards to "cardswon" of the given player
+            $this->cards->moveAllCardsInLocation('cardsontable', 'cardswon', null, $best_value_player_id);
+            // Notify
+            // Note: we use 2 notifications here in order we can pause the display during the first notification
+            //  before we move all cards to the winner (during the second)
+            $players = self::loadPlayersBasicInfos();
+            self::notifyAllPlayers( 'trickWin', clienttranslate('${player_name} wins the trick'), array(
+                'player_id' => $best_value_player_id,
+                'player_name' => $players[ $best_value_player_id ]['player_name']
+            ) );
+            self::notifyAllPlayers( 'giveAllCardsToPlayer','', array(
+                'player_id' => $best_value_player_id
+            ) );
                 if ($this->cards->countCardInLocation('hand') == 0) {
                     // End of the hand
                     $this->gamestate->nextState("endHand");
+                } else {
+                    // End of the trick
+                    $this->gamestate->nextState("nextTrick");
                 }
             } else {
                 // Standard case (not the end of the trick)

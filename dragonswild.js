@@ -230,30 +230,29 @@ function (dojo, declare) {
             _ make a call to the game server
         
         */
-                onPlayerHandSelectionChanged : function() {
-                    var items = this.playerHand.getSelectedItems();
+        onPlayerHandSelectionChanged : function() {
+            var items = this.playerHand.getSelectedItems();
 
-                    if (items.length > 0) {
-                        if (this.checkAction('playCard', true)) {
-                            // Can play a card
+            if (items.length > 0) {
+                var action = 'playCard';
+                if (this.checkAction(action, true)) {
+                    // Can play a card
+                    var card_id = items[0].id;
+                    this.ajaxcall("/" + this.game_name + "/" + this.game_name + "/" + action + ".html", {
+                        id : card_id,
+                        lock : true
+                    }, this, function(result) {
+                    }, function(is_error) {
+                    });
 
-                            var card_id = items[0].id;
-                            console.log("on playCard "+card_id);
-                                                // type is (color - 1) * 16 + (value - 2)
-                                                var type = items[0].type;
-                                                var color = Math.floor(type / 16) + 1;
-                                                var value = type % 16 + 2;
-
-                                                this.playCardOnTable(this.player_id,color,value,card_id);
-
-                            this.playerHand.unselectAll();
-                        } else if (this.checkAction('giveCards')) {
-                            // Can give cards => let the player select some cards
-                        } else {
-                            this.playerHand.unselectAll();
-                        }
-                    }
-                },
+                    this.playerHand.unselectAll();
+                } else if (this.checkAction('giveCards')) {
+                    // Can give cards => let the player select some cards
+                } else {
+                    this.playerHand.unselectAll();
+                }
+            }
+        },
         /* Example:
         
         onMyMethodToCall1: function( evt )
